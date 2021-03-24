@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <script type="text/javascript" src="d3.js"></script>
+
+    <title></title>
+  </head>
+  <body>
+    <script type="text/javascript">
+      var rowConverter = function (d) {
+        console.log("I get called");
+        d.Food = d.Food;
+        d.Deliciousness = parseFloat(d.Deliciousness);
+        return d;
+      };
+
+      d3.csv("testcsv.csv", rowConverter).then(
+      function(data) {
+        console.log(data);
+      });
+    </script>
+  </body>
+</html>
