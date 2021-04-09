@@ -15,6 +15,9 @@
       var minDate;
       var maxDate;
       var maxAmount;
+      var svg;
+      var axisMin;
+      var axisMax;
 
       var rowConverter = function (data) {
           data.forEach(function (d) {
@@ -45,10 +48,12 @@
                                             maxAmount = d3.max(dataset, function (d) { return d.Amount;});
                                      })
                                      .then(function () {
+                                       axisMin = new Date(minDate.getTime());
+                                       axisMax = new Date(maxDate.getTime());
                                        xScale = d3.scaleTime()
                                                   .domain([
-                                                    minDate,
-                                                    maxDate
+                                                    axisMin.setDate(axisMin.getDate() - 5),
+                                                    axisMax.setDate(axisMax.getDate() + 5)
                                                   ])
                                                   .range([padding, w-padding]);
 
@@ -57,10 +62,28 @@
                                                   .range([h-padding, padding]);
                                      })
                                      .then(function () {
-                                       var svg = d3.select("body")
+                                       svg = d3.select("body")
                                                    .append("svg")
                                                    .attr("width", w)
                                                    .attr("height", h);
+
+                                       svg.selectAll("line")
+                                          .data(dataset)
+                                          .enter()
+                                          .append("line")
+                                          .attr("x1", function (d) {
+                                            return xScale(d.Date);
+                                          })
+                                          .attr("x2", function (d) {
+                                            return xScale(d.Date);
+                                          })
+                                          .attr("y1", h-padding)
+                                          .attr("y2", function (d) {
+                                            return yScale(d.Amount);
+                                          })
+                                          .attr("stroke", "#ddd")
+                                          .attr("stroke-width", 1);
+
 
                                        svg.selectAll("circle")
                                           .data(dataset)
@@ -74,6 +97,8 @@
                                           })
                                           .attr("r", 5);
 
+
+                                    /**
                                       svg.selectAll("text")
                                          .data(dataset)
                                          .enter()
@@ -88,7 +113,27 @@
                                            return yScale(d.Amount) - 5;
                                          })
                                          .attr("font-family", "sans-serif")
-                                         .attr("font-size", "11px");
+                                         .attr("font-size", "11px"); */
+                                    })
+
+                                    .then( function () {
+                                      var xAxis = d3.axisBottom()
+                                        .scale(xScale)
+                                        .ticks(5);
+
+                                      var yAxis = d3.axisLeft()
+                                                    .scale(yScale)
+                                                    .ticks(5);
+
+                                      svg.append("g")
+                                         .attr("class", "axis")
+                                         .attr("transform", "translate(0," +(h-padding) + ")")
+                                         .call(xAxis);
+
+                                      svg.append("g")
+                                         .attr("class", "axis")
+                                         .attr("transform", "translate("+padding +",0)")
+                                         .call(yAxis);
                                     });
 
 
